@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZynXHub Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-red-900 min-h-screen flex items-center justify-center p-4 font-sans text-white">
+
+    <div id="login-screen" class="w-full max-w-md glass rounded-3xl p-8 shadow-2xl">
+        <div class="text-center mb-8">
+            <div class="bg-red-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <span class="text-white text-4xl font-bold">Z</span>
+            </div>
+            <h1 class="text-4xl font-extrabold tracking-tight">ZynXHub</h1>
+            <p class="text-gray-300 mt-2">Secure Admin Portal</p>
+        </div>
+
+        <div class="space-y-6">
+            <div>
+                <label class="text-gray-200 block mb-2 ml-1">Username</label>
+                <div class="relative">
+                    <i class="fa fa-user absolute left-4 top-4 text-gray-400"></i>
+                    <input type="text" id="user" placeholder="ZynXHub" class="w-full bg-white/10 border border-white/20 rounded-xl py-3 px-11 text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+                </div>
+            </div>
+            <div>
+                <label class="text-gray-200 block mb-2 ml-1">Password</label>
+                <div class="relative">
+                    <i class="fa fa-lock absolute left-4 top-4 text-gray-400"></i>
+                    <input type="password" id="pass" placeholder="••••••••" class="w-full bg-white/10 border border-white/20 rounded-xl py-3 px-11 text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+                </div>
+            </div>
+            <button onclick="login()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl shadow-lg transform transition active:scale-95 flex items-center justify-center gap-2">
+                Sign In to Dashboard <i class="fa fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="hidden w-full max-w-4xl glass rounded-3xl p-8 shadow-2xl">
+        <div class="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+            <div>
+                <h2 class="text-2xl font-bold text-red-500">ZynXHub Control Center</h2>
+                <p class="text-sm text-gray-400">Welcome back, Admin</p>
+            </div>
+            <button onclick="location.reload()" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg transition">
+                <i class="fa fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-black/20 p-6 rounded-2xl border border-white/10">
+                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <i class="fa fa-map-marked-alt text-green-400"></i> Game Management
+                </h3>
+                <label class="text-xs text-gray-400 block mb-1">Target Place ID</label>
+                <input type="text" id="mapID" placeholder="Contoh: 80945057902511" class="w-full bg-black/40 border border-gray-600 rounded-lg p-3 text-sm mb-4 focus:border-green-500 outline-none transition">
+                <button onclick="updateAction('MAP DIHAPUS/GANTI', 'mengganti map ke ID: ' + document.getElementById('mapID').value)" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-bold transition shadow-lg shadow-green-900/20">
+                    Update Map Now
+                </button>
+            </div>
+
+            <div class="bg-black/20 p-6 rounded-2xl border border-white/10">
+                <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <i class="fa fa-code text-blue-400"></i> Script Management
+                </h3>
+                <label class="text-xs text-gray-400 block mb-1">New Script URL (Raw)</label>
+                <input type="text" id="scriptURL" placeholder="https://raw.githubusercontent..." class="w-full bg-black/40 border border-gray-600 rounded-lg p-3 text-sm mb-4 focus:border-blue-500 outline-none transition">
+                <button onclick="updateAction('SCRIPT UPDATED', 'memperbarui script utama')" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-bold transition shadow-lg shadow-blue-900/20">
+                    Push Script Update
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-8 p-4 bg-black/30 rounded-xl border border-white/5 text-xs text-gray-400">
+            <i class="fa fa-info-circle"></i> System status: <span class="text-green-500">Connected to Webhook</span>
+        </div>
+    </div>
+
+    <script>
+        // Konfigurasi
+        const AUTH = {
+            user: "ZynXHub",
+            pass: "ZynXHub102"
+        };
+        const WEBHOOK_URL = "MASUKKAN_URL_WEBHOOK_DISCORD_KAMU_DISINI";
+
+        function login() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+
+            if (u === AUTH.user && p === AUTH.pass) {
+                sendLog("LOGIN ADMIN", "telah masuk ke Panel Admin");
+                
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+            } else {
+                alert("Akses Ditolak! Username atau Password salah.");
+            }
+        }
+
+        function updateAction(type, detail) {
+            if (WEBHOOK_URL.includes("WEBHOOK")) {
+                alert("Berhasil! (Jangan lupa masukkan URL Webhook di dalam kode agar log Discord aktif)");
+            } else {
+                sendLog(type, detail);
+                alert("Aksi " + type + " Berhasil Dikirim!");
+            }
+        }
+
+        function sendLog(tipe, detail) {
+            if (!WEBHOOK_URL || WEBHOOK_URL === "MASUKKAN_URL_WEBHOOK_DISCORD_KAMU_DISINI") return;
+
+            const data = {
+                "embeds": [{
+                    "title": "- ` " + tipe + " ` -",
+                    "description": "Tuan **" + AUTH.user + "** " + detail + ".",
+                    "color": tipe.includes("LOGIN") ? 3066993 : 15158332,
+                    "footer": { "text": "ZynXHub MapTrack System | Today" },
+                    "timestamp": new Date().toISOString()
+                }]
+            };
+
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        }
+    </script>
+</body>
+</html>
